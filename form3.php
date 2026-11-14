@@ -9,9 +9,7 @@ if (!isset($_SESSION['farmer_id'])) {
 
 // استقبال المساحة القادمة من فورم القياس
 if (isset($_GET['measured_area']) && is_numeric($_GET['measured_area'])) {
-
-    $area = (float) $_GET['measured_area'];
-
+    $area = (float)$_GET['measured_area'];
     if ($area > 0) {
         $_SESSION['measured_area'] = $area;
     }
@@ -19,19 +17,17 @@ if (isset($_GET['measured_area']) && is_numeric($_GET['measured_area'])) {
 
 // قراءة المساحة المحفوظة
 $measuredArea = $_SESSION['measured_area'] ?? '';
+$farmerEmail = $_SESSION['farmer_email'] ?? '';
 ?>
-
-
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" id="htmlRoot">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="pageTitle">TerraVision - نظام تحليل وإدارة الأراضي الزراعية</title>
-    <!-- مكتبة خرائط Leaflet -->
+    <!-- مكتبة خرائط Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styl.css">
 </head>
 <body>
 
@@ -56,13 +52,9 @@ $measuredArea = $_SESSION['measured_area'] ?? '';
             <div class="section-title" id="secTitle1">أولاً: معلومات الأرض</div>
             
             <div class="form-group">
-               <input
-    type="email"
-    id="ownerEmail"
-    name="ownerEmail"
-    value="<?php echo htmlspecialchars($_SESSION['farmer_email'] ?? ''); ?>"
-    required
-></div>
+                <label for="ownerEmail">البريد الإلكتروني للتواصل (للمبيعات والإشعارات)</label>
+                <input type="email" id="ownerEmail" name="ownerEmail" value="<?php echo htmlspecialchars($farmerEmail); ?>" required readonly>
+            </div>
 
             <div class="form-group">
                 <label for="landNumber" id="lblLandNumber">رقم الأرض</label>
@@ -72,17 +64,8 @@ $measuredArea = $_SESSION['measured_area'] ?? '';
             <div class="row">
                 <div class="form-group">
                     <label for="landArea" id="lblLandArea">مساحة الأرض</label>
-                    <input
-    type="number"
-    id="landArea"
-    name="landArea"
-    value="<?php echo htmlspecialchars((string)$measuredArea); ?>"
-    placeholder="مثلاً 10"
-    min="0.1"
-    step="any"
-    required
->
-                    </div>
+                    <input type="number" id="landArea" name="landArea" value="<?php echo htmlspecialchars((string)$measuredArea); ?>" placeholder="مثلاً 10" min="0.1" step="any" required>
+                </div>
                 <div class="form-group">
                     <label for="areaUnit" id="lblAreaUnit">وحدة المساحة</label>
                     <select id="areaUnit">
@@ -95,7 +78,7 @@ $measuredArea = $_SESSION['measured_area'] ?? '';
 
             <div class="form-group">
                 <label for="location" id="lblLocation">موقع الأرض / الإحداثيات (GPS)</label>
-                <input type="text" id="location" placeholder="انقر على الخريطة أو استخدم زر GPS" required>
+                <input type="text" id="location" placeholder="انقر على الخريطة أو اسحب المؤشر أو استخدم زر GPS" required>
             </div>
 
             <div class="form-group">
@@ -145,7 +128,7 @@ $measuredArea = $_SESSION['measured_area'] ?? '';
                 </div>
             </div>
 
-            <!-- إعدادات البيع والروابط العالمية (تظهر فقط إذا اخترت نعم) -->
+            <!-- إعدادات البيع والروابط العالمية -->
             <div id="sellOptionsContainer" style="display: none; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px dashed #81c784;">
                 <div class="form-group">
                     <label for="askingPrice">السعر المطلوب (بالدينار الأردني / USD):</label>
@@ -157,9 +140,9 @@ $measuredArea = $_SESSION['measured_area'] ?? '';
                 <div class="form-group">
                     <label for="globalPlatform">اختر المنصة العالمية للنشر:</label>
                     <select id="globalPlatform">
-                        <option value="https://agroscout.com">🛰️ AgroScout - سوق الأراضي والمحاصيل المدعوم بالأقمار الصناعية (agroscout.com)</option>
+                        <option value="https://agroscout.com">🛰️ AgroScout - سوق الأراضي والمحاصيل (agroscout.com)</option>
                         <option value="https://www.landwatch.com">🌍 LandWatch Global - منصة عقارات الأراضي (landwatch.com)</option>
-                        <option value="https://eos.com/landviewer/">🔭 EOS LandViewer - خرائط وتحليل الأقمار الصناعية (eos.com)</option>
+                        <option value="https://eos.com/landviewer/">🔭 EOS LandViewer - خرائط وأقمار صناعية (eos.com)</option>
                     </select>
                 </div>
             </div>
@@ -178,8 +161,8 @@ $measuredArea = $_SESSION['measured_area'] ?? '';
             <h3 id="mapTitle">معاينة الأرض عبر الأقمار الصناعية (GPS)</h3>
             <button type="button" class="btn-gps" id="btnGetLocation" onclick="locateUser()">📍 تحديد موقعي الحالي</button>
         </div>
-        <p class="map-hint" id="mapHint">انقر على أي مكان في الخريطة لتحديد موقع الأرض وإحداثياتها</p>
-        <div id="satelliteMap"></div>
+        <p class="map-hint" id="mapHint">انقر على الخريطة أو اسحب المؤشر لتحديد موقع الأرض وإحداثياتها</p>
+        <div id="satelliteMap" style="width: 100%; height: 520px; border-radius: 12px; border: 2px solid rgba(255, 255, 255, 0.5); z-index: 1; position: relative;"></div>
         <div class="coords-box" id="coordsDisplay">GPS: 31.9539, 35.9106</div>
     </div>
 
@@ -209,14 +192,13 @@ $measuredArea = $_SESSION['measured_area'] ?? '';
             </div>
         </div>
 
-        <!-- قسم عرض البيع والنشر المباشر للموقع المختار -->
+        <!-- سوق البيع -->
         <div id="marketSection" style="display: none; margin-bottom: 20px;">
             <div class="section-title" style="color: #ffb74d; border-bottom-color: #ffb74d;">🛒 سوق الاستثمار والربط مع المنصة العالمية</div>
             <div style="background: rgba(255, 152, 0, 0.2); border: 1.5px solid #ffb74d; border-radius: 12px; padding: 20px;">
                 <p style="color: #fff; margin: 0 0 10px 0;">السعر المطلوب: <strong id="repPrice" style="color: #81c784;">-</strong></p>
                 <p style="color: #fff; margin: 0 0 15px 0;">رابط الموقع العالمي المختار للنشر: <a href="#" id="platformDirectLink" target="_blank" style="color: #81c784; text-decoration: underline;">-</a></p>
                 
-                <!-- كبسة النشر الفعلي والتوجه للموقع -->
                 <button type="button" onclick="publishToGlobalMarket()" style="background: #1565c0; color: #fff; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; margin-bottom: 15px;">🚀 نشر وتوجيه إلى الموقع العالمي</button>
                 
                 <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-top: 15px;">
@@ -252,11 +234,89 @@ $measuredArea = $_SESSION['measured_area'] ?? '';
     مصادر البيانات العلمية: NASA Earth Observations & ESA Copernicus Sentinel-2
 </footer>
 
-<!-- السكربتات -->
+<!-- مكتبة Leaflet وجافاسكريبت الخريطة والتحكم -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="lang.js"></script>
-<script src="script.js"></script>
 <script>
+    // تهيئة الخريطة وتفعيل التفاعل والـ GPS
+    let map, marker;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var defaultLat = 31.9539;
+        var defaultLng = 35.9106;
+
+        // إنشاء الخريطة وتفعيل السحب والتفاعل
+        map = L.map('satelliteMap', {
+            dragging: true,
+            touchZoom: true,
+            scrollWheelZoom: true
+        }).setView([defaultLat, defaultLng], 13);
+
+        // إضافة طبقة الأقمار الصناعية (Esri World Imagery)
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and GIS'
+        }).addTo(map);
+
+        // إضافة علامة قابلة للسحب بحرية (Draggable Marker)
+        marker = L.marker([defaultLat, defaultLng], {draggable: true}).addTo(map);
+
+        // تحديث مقاس الخريطة لتجنب أي مشاكل عرض داخل الـ Flexbox
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 300);
+
+        // 1. تحديث الإحداثيات ومكان المؤشر عند النقر على أي مكان في الخريطة
+        map.on('click', function(e) {
+            var lat = e.latlng.lat.toFixed(4);
+            var lng = e.latlng.lng.toFixed(4);
+            marker.setLatLng(e.latlng);
+            document.getElementById('location').value = lat + ", " + lng;
+            document.getElementById('coordsDisplay').innerText = "GPS: " + lat + ", " + lng;
+        });
+
+        // 2. تحديث الإحداثيات عند سحب المؤشر بالماوس وإفلاته في مكان جديد
+        marker.on('dragend', function(e) {
+            var coord = marker.getLatLng();
+            var lat = coord.lat.toFixed(4);
+            var lng = coord.lng.toFixed(4);
+            document.getElementById('location').value = lat + ", " + lng;
+            document.getElementById('coordsDisplay').innerText = "GPS: " + lat + ", " + lng;
+        });
+    });
+
+    // دالة تحديد الموقع الحالي عبر GPS الحقيقي للجهاز
+    function locateUser() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+                    
+                    document.getElementById('location').value = lat.toFixed(4) + ", " + lng.toFixed(4);
+                    document.getElementById('coordsDisplay').innerText = "GPS: " + lat.toFixed(4) + ", " + lng.toFixed(4);
+                    
+                    if (map && marker) {
+                        map.setView([lat, lng], 15);
+                        marker.setLatLng([lat, lng]);
+                        map.invalidateSize();
+                    }
+                },
+                function(error) {
+                    let msg = "تعذر تحديد الموقع. ";
+                    if (error.code === error.PERMISSION_DENIED) {
+                        msg += "يرجى السماح للمتصفح بالوصول إلى الموقع (GPS) من إعدادات القفل بجانب رابط الصفحة.";
+                    } else {
+                        msg += "تأكد من تفعيل خدمة الموقع في جهازك.";
+                    }
+                    alert(msg);
+                },
+                { timeout: 10000, enableHighAccuracy: true }
+            );
+        } else {
+            alert("المتصفح الخاص بك لا يدعم خدمة تحديد الموقع الجغرافي.");
+        }
+    }
+
     function toggleSellOptions(show) {
         const container = document.getElementById('sellOptionsContainer');
         container.style.display = show ? 'block' : 'none';

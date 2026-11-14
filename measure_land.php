@@ -134,7 +134,7 @@ if (!isset($_SESSION['farmer_id'])) {
         </button>
     </div>
 
-    <a href="dashboard.php" class="switch-link" style="margin-top: 15px;">تخطي والانتقال لمعلومات الأرض ⬅</a>
+    <a href="form3.php" class="switch-link" style="margin-top: 15px;">تخطي والانتقال لمعلومات الأرض ⬅</a>
 </div>
 
 <script>
